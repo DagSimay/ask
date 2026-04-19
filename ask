@@ -10,8 +10,26 @@ fi
 args_prompt="$*"
 
 #Piped inputs as prompts
-piped_input=""
+piped_inputs=""
 if [ ! -z 0 ]
 then
-	piped_input="$(cat)"
+	piped_inputs="$(cat)"
+fi
+
+if [ -n "$args_prompt" ] && [  -n "$piped_inputs" ]
+then
+	user_prompt="$args_prompt $piped_inputs"
+
+elif [ -n "$args_prompt" ]
+then
+	user_prompt="$args_prompt"
+
+elif [ -n "$piped_inputs" ]
+then
+	user_prompt="$piped_inputs"
+
+else
+	echo "Usage: ask [prompt...]"
+	echo "	echo 'text'| ask [optional prefix...]"
+	exit 1
 fi
