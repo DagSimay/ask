@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 
 if [ -z "$ASK_API_URL" ] || [ -z "$ASK_MODEL" ] || [ -z "$ASK_API_KEY" ]
@@ -11,7 +12,7 @@ args_prompt="$*"
 
 #Piped inputs as prompts
 piped_inputs=""
-if [ ! -z 0 ]
+if [ ! -t 0 ]
 then
 	piped_inputs="$(cat)"
 fi
@@ -33,3 +34,13 @@ else
 	echo "	echo 'text'| ask [optional prefix...]"
 	exit 1
 fi
+
+#Sending request
+curl "$ASK_API_URL" -s \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $ASK_API_KEY" \
+  -d "$(jq -n \
+    --arg model "$ASK_MODEL" \
+    --arg content "$user_prompt" \
+    '{model: $model, messages: [{role: "system", content: "You are a CLI tool. Output plain text only. No yapping. Keep the output concise."}, {role: "user", content: $content}]}')" \
+  | jq -r '.choices[0].message.content'
